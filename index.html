@@ -6,13 +6,14 @@
 <title>Texas Hold'em Poker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noticia+Text:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noticia+Text:ital,wght@0,400;0,700;1,400;1,700&family=LXGW+WenKai+Mono+TC:wght@400&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation}
 html,body{width:100%;height:100%;overflow:hidden;background:#0f2d1a}
 body{font-family:'Noticia Text',Georgia,serif;color:#fff;display:flex;flex-direction:row}
 button{font-family:'Noticia Text',Georgia,serif;cursor:pointer}
 .row{display:flex;gap:6px;align-items:center;justify-content:center}
+.suit{font-family:'LXGW WenKai Mono TC',monospace;}
 .chip{border-radius:10px;padding:2px 7px;font-size:16px;font-weight:normal;color:#fff;display:inline-block}
 
 /* ── Scaling wrapper ── */
@@ -263,20 +264,20 @@ function cardEl(card,hidden,small){
   } else {
     el.className="card";
     var red=card.s==="♥"||card.s==="♦", col=red?"#cc0000":"#111";
-    var fs="16px";   // corner rank font
-    var ss="14px";   // corner suit font
+    var fs="18px";   // corner rank font
+    var ss="16px";   // corner suit font
     var msz="20px";  // pip font
     var pipLayouts={
       "A":  [[50,50,false]],
       "2":  [[50,22,false],[50,78,true]],
       "3":  [[50,17,false],[50,50,false],[50,83,true]],
-      "4":  [[30,22,false],[70,22,false],[30,78,true],[70,78,true]],
-      "5":  [[30,22,false],[70,22,false],[50,50,false],[30,78,true],[70,78,true]],
-      "6":  [[30,22,false],[70,22,false],[30,50,false],[70,50,false],[30,78,true],[70,78,true]],
-      "7":  [[30,20,false],[70,20,false],[50,37,false],[30,56,false],[70,56,false],[30,76,true],[70,76,true]],
-      "8":  [[30,18,false],[70,18,false],[50,34,false],[30,52,true],[70,52,true],[50,66,true],[30,82,true],[70,82,true]],
-      "9":  [[30,17,false],[70,17,false],[30,37,false],[70,37,false],[50,50,false],[30,63,true],[70,63,true],[30,83,true],[70,83,true]],
-      "10": [[30,15,false],[70,15,false],[50,29,false],[30,42,false],[70,42,false],[30,58,true],[70,58,true],[50,71,true],[30,85,true],[70,85,true]],
+      "4":  [[34,22,false],[66,22,false],[34,78,true],[66,78,true]],
+      "5":  [[34,22,false],[66,22,false],[50,50,false],[34,78,true],[66,78,true]],
+      "6":  [[34,22,false],[66,22,false],[34,50,false],[66,50,false],[34,78,true],[66,78,true]],
+      "7":  [[34,20,false],[66,20,false],[50,37,false],[34,56,false],[66,56,false],[34,76,true],[66,76,true]],
+      "8":  [[34,18,false],[66,18,false],[50,34,false],[34,52,true],[66,52,true],[50,66,true],[34,82,true],[66,82,true]],
+      "9":  [[34,17,false],[66,17,false],[34,37,false],[66,37,false],[50,50,false],[34,63,true],[66,63,true],[34,83,true],[66,83,true]],
+      "10": [[34,15,false],[66,15,false],[50,28,false],[34,40,false],[66,40,false],[34,60,true],[66,60,true],[50,72,true],[34,85,true],[66,85,true]],
       "J":null,"Q":null,"K":null
     };
     var pips=pipLayouts[card.r];
@@ -285,22 +286,22 @@ function cardEl(card,hidden,small){
     // Corner TL
     var tl=document.createElement("div");
     tl.style.cssText="position:absolute;top:3px;left:3px;line-height:1.1;text-align:center;color:"+col;
-    tl.innerHTML='<div style="font-size:'+fs+';font-weight:normal">'+card.r+'</div><div style="font-size:'+ss+'">'+card.s+'</div>';
+    tl.innerHTML='<div style="font-size:'+fs+';font-weight:normal">'+card.r+'</div><div style="font-size:'+ss+'"><span class="suit">'+card.s+'</span></div>';
     // Corner BR (rotated)
     var br=document.createElement("div");
     br.style.cssText="position:absolute;bottom:3px;right:3px;line-height:1.1;text-align:center;transform:rotate(180deg);color:"+col;
-    br.innerHTML='<div style="font-size:'+fs+';font-weight:normal">'+card.r+'</div><div style="font-size:'+ss+'">'+card.s+'</div>';
+    br.innerHTML='<div style="font-size:'+fs+';font-weight:normal">'+card.r+'</div><div style="font-size:'+ss+'"><span class="suit">'+card.s+'</span></div>';
     el.appendChild(tl); el.appendChild(br);
     if(isFace){
       var fc=document.createElement("div");
       fc.style.cssText="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center";
       fc.innerHTML='<div style="font-size:40px;color:'+col+';font-weight:normal;line-height:1">'+card.r+'</div>'
-        +'<div style="font-size:30px;color:'+col+';line-height:1.2">'+card.s+'</div>';
+        +'<div style="font-size:30px;color:'+col+';line-height:1.2"><span class="suit">'+card.s+'</span></div>';
       el.appendChild(fc);
     } else if(card.r==="A"){
       var ac=document.createElement("div");
       ac.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center";
-      ac.innerHTML='<div style="font-size:52px;color:'+col+';line-height:1">'+card.s+'</div>';
+      ac.innerHTML='<div style="font-size:52px;color:'+col+';line-height:1"><span class="suit">'+card.s+'</span></div>';
       el.appendChild(ac);
     } else if(pips){
       for(var pi=0;pi<pips.length;pi++){
@@ -308,7 +309,7 @@ function cardEl(card,hidden,small){
         var pd=document.createElement("div");
         pd.style.cssText="position:absolute;font-size:"+msz+";color:"+col+";transform:translate(-50%,-50%)"+(rot?" rotate(180deg)":"")
           +";left:"+px+"%;top:"+py+"%;line-height:1;user-select:none";
-        pd.textContent=card.s;
+        pd.innerHTML='<span class="suit">'+card.s+'</span>';
         el.appendChild(pd);
       }
     }
