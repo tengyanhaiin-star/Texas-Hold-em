@@ -293,11 +293,23 @@ function cardEl(card,hidden,small){
     br.innerHTML='<div style="font-size:'+fs+';font-weight:normal">'+card.r+'</div><div style="font-size:'+ss+'"><span class="suit">'+card.s+'</span></div>';
     el.appendChild(tl); el.appendChild(br);
     if(isFace){
-      var fc=document.createElement("div");
-      fc.style.cssText="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center";
-      fc.innerHTML='<div style="font-size:40px;color:'+col+';font-weight:normal;line-height:1">'+card.r+'</div>'
-        +'<div style="font-size:30px;color:'+col+';line-height:1.2"><span class="suit">'+card.s+'</span></div>';
-      el.appendChild(fc);
+      var faceLayouts={
+        "♠":[[36,36,false,true],[66,36,false,false],[64,64,true,true],[34,64,true,false]],
+        "♥":[[36,36,false,true],[66,36,true,false],[64,64,true,true],[34,64,false,false]],
+        "♣":[[36,36,false,false],[66,36,false,true],[34,64,true,true],[64,64,true,false]],
+        "♦":[[36,36,true,false],[66,36,false,true],[34,64,true,true],[64,64,false,false]]
+      }[card.s]||[];
+      for(var fi=0;fi<faceLayouts.length;fi++){
+        var fl=faceLayouts[fi];
+        var fd=document.createElement("div");
+        var rot180=fl[2]?" rotate(180deg)":"";
+        var isSuitEl=fl[3];
+        fd.style.cssText="position:absolute;left:"+fl[0]+"%;top:"+fl[1]+
+          "%;transform:translate(-50%,-50%)"+rot180+
+          ";color:"+col+";line-height:1;font-size:36px;font-weight:normal";
+        fd.innerHTML=isSuitEl?'<span class="suit">'+card.s+'</span>':card.r;
+        el.appendChild(fd);
+      }
     } else if(card.r==="A"){
       var ac=document.createElement("div");
       ac.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center";
