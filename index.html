@@ -294,10 +294,10 @@ function cardEl(card,hidden,small){
     el.appendChild(tl); el.appendChild(br);
     if(isFace){
       var faceLayouts={
-        "♠":[[36,36,false,true],[66,36,false,false],[64,64,true,true],[34,64,true,false]],
-        "♥":[[36,36,false,true],[66,36,true,false],[64,64,true,true],[34,64,false,false]],
-        "♣":[[36,36,false,false],[66,36,false,true],[34,64,true,true],[64,64,true,false]],
-        "♦":[[36,36,true,false],[66,36,false,true],[34,64,true,true],[64,64,false,false]]
+        "♠":[[36,36,false,true],[68,36,false,false],[64,64,true,true],[32,64,true,false]],
+        "♥":[[36,36,false,true],[68,36,true,false],[64,64,true,true],[32,64,false,false]],
+        "♣":[[36,36,false,false],[68,36,false,true],[32,64,true,true],[64,64,true,false]],
+        "♦":[[36,36,true,false],[68,36,false,true],[32,64,true,true],[64,64,false,false]]
       }[card.s]||[];
       for(var fi=0;fi<faceLayouts.length;fi++){
         var fl=faceLayouts[fi];
