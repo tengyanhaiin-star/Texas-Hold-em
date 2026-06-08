@@ -258,8 +258,7 @@ function cardEl(card,hidden,small){
     el.className="card-back";
     el.style.cssText="width:"+w+";height:"+h+";border-radius:8px;background:linear-gradient(135deg,#4a5568,#2d3748);border:2px solid #718096;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 3px 8px rgba(0,0,0,0.4)";
     var pat=document.createElement("div");
-    pat.style.cssText="width:calc(100% - 8px);height:calc(100% - 8px);border-radius:5px;border:1px solid rgba(255,255,255,0.15);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.05) 0px,rgba(255,255,255,0.05) 2px,transparent 2px,transparent 10px),repeating-linear-gradient(-45deg,rgba(255,255,255,0.05) 0px,rgba(255,255,255,0.05) 2px,transparent 2px,transparent 10px);display:flex;align-items:center;justify-content:center";
-    pat.innerHTML='<span style="font-size:32px;color:rgba(255,255,255,0.25)">♦</span>';
+    pat.style.cssText="width:calc(100% - 8px);height:calc(100% - 8px);border-radius:5px;border:1px solid rgba(255,255,255,0.15);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.05) 0px,rgba(255,255,255,0.05) 2px,transparent 2px,transparent 10px),repeating-linear-gradient(-45deg,rgba(255,255,255,0.05) 0px,rgba(255,255,255,0.05) 2px,transparent 2px,transparent 10px)";
     el.appendChild(pat);
   } else {
     el.className="card";
