@@ -314,6 +314,20 @@ function cardEl(card,hidden,small){
       ac.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center";
       ac.innerHTML='<div style="font-size:80px;color:'+col+';line-height:1"><span class="suit">'+card.s+'</span></div>';
       el.appendChild(ac);
+      // 黑桃A特殊装饰
+      if(card.s==="♠"){
+        var layers=[
+          {s:"♥",sz:"64px",col:"#555555",top:45,rot:true},
+          {s:"♦",sz:"40px",col:"#AAAAAA",top:42,rot:false},
+          {s:"♣",sz:"24px",col:"#111111",top:40,rot:false}
+        ];
+        layers.forEach(function(l){
+          var ld=document.createElement("div");
+          ld.style.cssText="position:absolute;left:50%;top:"+l.top+"%;transform:translate(-50%,-50%)"+(l.rot?" rotate(180deg)":"")+";font-size:"+l.sz+";color:"+l.col+";line-height:1";
+          ld.innerHTML='<span class="suit">'+l.s+'</span>';
+          el.appendChild(ld);
+        });
+      }
     } else if(pips){
       for(var pi=0;pi<pips.length;pi++){
         var px=pips[pi][0],py=pips[pi][1],rot=pips[pi][2];
