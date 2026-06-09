@@ -265,7 +265,7 @@ function cardEl(card,hidden,small){
     var red=card.s==="♥"||card.s==="♦", col=red?"#cc0000":"#111";
     var fs="18px";   // corner rank font
     var ss="16px";   // corner suit font
-    var msz="20px";  // pip font
+    var msz="24px";  // pip font
     var pipLayouts={
       "A":  [[50,50,false]],
       "2":  [[50,22,false],[50,78,true]],
@@ -312,7 +312,7 @@ function cardEl(card,hidden,small){
     } else if(card.r==="A"){
       var ac=document.createElement("div");
       ac.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center";
-      ac.innerHTML='<div style="font-size:52px;color:'+col+';line-height:1"><span class="suit">'+card.s+'</span></div>';
+      ac.innerHTML='<div style="font-size:80px;color:'+col+';line-height:1"><span class="suit">'+card.s+'</span></div>';
       el.appendChild(ac);
     } else if(pips){
       for(var pi=0;pi<pips.length;pi++){
@@ -383,7 +383,7 @@ function startHand(){
     return p;
   });
   G.players.forEach(function(p){if(p.chips===0&&!G.folded.has(p.id)){G.allin.add(p.id);setTimeout(soundAllIn,100);}});
-  G.pot=sbAmt+bbAmt;G.roundBet=BB;G.roundRaiseCount=0;G.phaseExpectBase=20;
+  G.pot=sbAmt+bbAmt;G.roundBet=BB;G.roundRaiseCount=0;G.phaseExpectBase=20;G.phaseStartPot=0;G.totalRaiseCount=0;
   // 追踪每位玩家本局累计投入（用于avgPot计算，排除已弃牌玩家）
   G.totalContrib={};alive.forEach(function(p){G.totalContrib[p.id]=0;});
   G.totalContrib[sbId]=sbAmt;G.totalContrib[bbId]=bbAmt;
@@ -409,8 +409,14 @@ function runAI(id){
   var myBet=G.bets[id]||0,toCall=G.roundBet-myBet,style=p.style;
   var hole=G.hands[id]||[],comm=G.community;
   var opponents=inHand().filter(function(x){return x.id!==id;}).length;
-  var result=estimateWinProb(hole,comm,opponents,1000);
+  var neverActedCount=(G.neverActed?G.neverActed.size:0);
+  var actedOpponents=Math.max(1,opponents-neverActedCount);
+  var mcOpponents=G.phase==="preflop"?actedOpponents:opponents;
+  var result=estimateWinProb(hole,comm,mcOpponents,1000);
   var strength=result.winRate,soleWinRate=result.soleWinRate;
+
+  // effectiveStrength：每次有人加注乘以0.96
+  var effectiveStrength=strength*Math.pow(0.96,G.totalRaiseCount||0);
 
   // 风格参数
   var T={
@@ -436,19 +442,17 @@ function runAI(id){
   if(toCall>0){
     var breakEven=toCall/(pot+toCall);
     var noise=(Math.random()-0.5)*T.mixRange;
-    shouldFold=strength<breakEven+noise;
+    shouldFold=effectiveStrength<breakEven+noise;
   }
 
-  // 2. 加注决策：强度阈值 + 虚张声势
+  // 加注决策：强度阈值 + 虚张声势
   var shouldRaise=false;
   if(canRaise&&!shouldFold){
     if(isSoleWinner){
       shouldRaise=true;
-    } else if(strength>T.raiseThresh){
-      // 强牌加注，加入混合策略随机性
+    } else if(effectiveStrength>T.raiseThresh){
       shouldRaise=Math.random()>T.mixRange;
     } else if(toCall===0&&Math.random()<T.bluffFreq){
-      // 虚张声势：只在无需跟注时，按风格频率触发
       shouldRaise=true;
     }
   }
@@ -494,6 +498,7 @@ function applyAction(id,action){
       G.players=G.players.map(function(x){return x.id===id?Object.assign({},x,{chips:x.chips-add}):x;});
       G.acted=new Set([id]);
       G.roundRaiseCount=(G.roundRaiseCount||0)+1;
+      G.totalRaiseCount=(G.totalRaiseCount||0)+1;
       G.lastRaiserId=id;
       var updP2=G.players.find(function(x){return x.id===id;});
       if(updP2.chips===0){G.allin.add(id);soundAllIn();}
@@ -531,7 +536,7 @@ function advancePhase(){
   var newBets={};G.players.forEach(function(p){newBets[p.id]=0;});
   G.bets=newBets;G.roundBet=0;G.acted=new Set();G.decremented=false;G.lastRaiserId=null;G.roundRaiseCount=0;
   G.phaseExpectBase=(G.phaseExpectBase||20)+20;
-  // 新阶段重置：所有尚在局中的玩家都算从未行动
+  G.phaseStartPot=G.pot;
   G.neverActed=new Set(inHand().map(function(p){return p.id;}));
   if(G.phase==="preflop"){G.community=[G.deck.shift(),G.deck.shift(),G.deck.shift()];G.phase="flop";addLog("--- Flop ---");soundNewPhase();}
   else if(G.phase==="flop"){G.community.push(G.deck.shift());G.phase="turn";addLog("--- Turn ---");soundNewPhase();}
