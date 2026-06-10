@@ -228,6 +228,17 @@ function cmpHand(a,b){
   return 0;
 }
 
+function chenScore(hole){
+  var vals=hole.map(function(c){return RV[c.r];}).sort(function(a,b){return b-a;});
+  var a=vals[0],b=vals[1],suited=hole[0].s===hole[1].s,paired=a===b;
+  var score=paired?Math.max(5,a):a/2;
+  if(suited)score+=2;
+  var gap=a-b;
+  if(gap===1)score+=1;else if(gap===3)score-=1;else if(gap===4)score-=2;else if(gap>4)score-=4;
+  if(a>=11&&b>=11)score+=1;
+  return Math.min(Math.max(score*0.06,0),1);
+}
+
 function estimateWinProb(holeCards,community,numOpponents,iterations){
   iterations=iterations||1000;
   var known={};holeCards.concat(community).forEach(function(c){known[c.s+c.r]=true;});
@@ -423,11 +434,13 @@ function runAI(id){
   var myBet=G.bets[id]||0,toCall=G.roundBet-myBet,style=p.style;
   var hole=G.hands[id]||[],comm=G.community;
   var opponents=inHand().filter(function(x){return x.id!==id;}).length;
-  var neverActedCount=(G.neverActed?G.neverActed.size:0);
-  var actedOpponents=Math.max(1,opponents-neverActedCount);
-  var mcOpponents=G.phase==="preflop"?actedOpponents:opponents;
-  var result=estimateWinProb(hole,comm,mcOpponents,1000);
-  var strength=result.winRate,soleWinRate=result.soleWinRate;
+  var strength,soleWinRate=0;
+  if(G.phase==="preflop"){
+    strength=chenScore(hole);
+  } else {
+    var result=estimateWinProb(hole,comm,opponents,1000);
+    strength=result.winRate;soleWinRate=result.soleWinRate;
+  }
 
   // effectiveStrength：每次有人加注乘以0.96
   var effectiveStrength=strength*Math.pow(0.96,G.totalRaiseCount||0);
