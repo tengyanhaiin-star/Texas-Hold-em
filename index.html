@@ -442,8 +442,8 @@ function runAI(id){
     strength=result.winRate;soleWinRate=result.soleWinRate;
   }
 
-  // effectiveStrength：每次有人加注乘以0.96
-  var effectiveStrength=strength*Math.pow(0.96,G.totalRaiseCount||0);
+  // effectiveStrength：每次有人加注乘以0.9
+  var effectiveStrength=strength*Math.pow(0.9,G.totalRaiseCount||0);
 
   // 风格参数
   var T={
