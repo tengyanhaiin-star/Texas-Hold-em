@@ -486,7 +486,8 @@ function runAI(id){
 
   var betUnit=(G.phase==="turn"||G.phase==="river")?BB*2:BB;
   var pot=G.pot;
-  var raiseCapped=(G.roundRaiseCount||0)>=4;
+  var raiseCap=G.phase==="preflop"?3:4;
+  var raiseCapped=(G.roundRaiseCount||0)>=raiseCap;
   var allOppsAllin=inHand().filter(function(x){return x.id!==id;}).every(function(x){return G.allin.has(x.id);});
   var bestWithHole=comm.length>0?bestHand(hole,comm):null;
   var bestBoardOnly=comm.length>=5?bestHand([],comm):null;
@@ -766,7 +767,8 @@ function render(){
       b.disabled=!enabled;b.textContent=label;b.onclick=function(){humanAction(act);};return b;
     };
     var betUnit=(G.phase==="turn"||G.phase==="river")?BB*2:BB;
-    var raiseCapped=(G.roundRaiseCount||0)>=4;
+    var raiseCap=G.phase==="preflop"?3:4;
+    var raiseCapped=(G.roundRaiseCount||0)>=raiseCap;
     var canRaise=isMyTurn&&!raiseCapped&&(human?human.chips:0)>0&&(human?human.chips:0)+(bets[0]||0)>=roundBet+betUnit;
     ctrl.appendChild(mkBtn("Fold","#c53030","fold",isMyTurn));
     ctrl.appendChild(mkBtn(toCall===0?"Check":"Call $"+toCall,"#2b6cb0",toCall===0?"check":"call",isMyTurn));
