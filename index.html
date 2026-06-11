@@ -242,8 +242,28 @@ function chenScore(hole,activePlayers){
 
 function estimateWinProb(holeCards,community,numOpponents,iterations){
   iterations=iterations||1000;
-  var known={};holeCards.concat(community).forEach(function(c){known[c.s+c.r]=true;});
+  // knownOpponentCards: 已知对手底牌数组（每人两张），可为空
+  var knownOpponentCards=arguments[4]||[];
+  var known={};
+  holeCards.concat(community).forEach(function(c){known[c.s+c.r]=true;});
+  knownOpponentCards.forEach(function(c){known[c.s+c.r]=true;});
   var deck=makeDeck().filter(function(c){return!known[c.s+c.r];});
+
+  // 如果所有牌都已知（river且只剩1个对手且knownOpponentCards完整）
+  if(community.length===5&&knownOpponentCards.length===numOpponents*2){
+    var myBest=bestHand(holeCards,community);
+    var beat=false,tied=false;
+    for(var oi=0;oi<numOpponents;oi++){
+      var oppHole=knownOpponentCards.slice(oi*2,oi*2+2);
+      var oppBest=bestHand(oppHole,community);
+      var cv=cmpHand(myBest,oppBest);
+      if(cv>0){beat=true;break;}
+      if(cv===0)tied=true;
+    }
+    var wr=beat?0:(tied?0.5:1);
+    return{winRate:wr,soleWinRate:beat||tied?0:1};
+  }
+
   var wins=0,soleWins=0;
   for(var i=0;i<iterations;i++){
     var d=shuffle(deck),di=0,board=community.slice();
@@ -251,9 +271,15 @@ function estimateWinProb(holeCards,community,numOpponents,iterations){
     var myBest=bestHand(holeCards,board);
     if(!myBest)continue;
     var oppHands=[];
-    for(var o=0;o<numOpponents;o++)oppHands.push(bestHand([d[di++],d[di++]],board));
+    // 先用已知对手底牌
+    for(var oi=0;oi<knownOpponentCards.length;oi+=2){
+      oppHands.push(bestHand([knownOpponentCards[oi],knownOpponentCards[oi+1]],board));
+    }
+    // 剩余未知对手随机发牌
+    var unknownOpponents=numOpponents-knownOpponentCards.length/2;
+    for(var o=0;o<unknownOpponents;o++)oppHands.push(bestHand([d[di++],d[di++]],board));
     var beat=false,tied=false;
-    for(var o=0;o<oppHands.length;o++){var c=cmpHand(myBest,oppHands[o]);if(c>0){beat=true;break;}if(c===0)tied=true;}
+    for(var o=0;o<oppHands.length;o++){var cv=cmpHand(myBest,oppHands[o]);if(cv>0){beat=true;break;}if(cv===0)tied=true;}
     if(!beat){wins++;if(!tied)soleWins++;}
   }
   return{winRate:wins/iterations,soleWinRate:soleWins/iterations};
@@ -439,7 +465,10 @@ function runAI(id){
   if(G.phase==="preflop"){
     strength=chenScore(hole,inHand().length);
   } else {
-    var result=estimateWinProb(hole,comm,opponents,1000);
+    // flop/turn/river：AI知道人类底牌
+    var humanHole=G.hands[0]||[];
+    var knownOppCards=humanHole.length===2&&!G.folded.has(0)?humanHole:[];
+    var result=estimateWinProb(hole,comm,opponents,1000,knownOppCards);
     strength=result.winRate;soleWinRate=result.soleWinRate;
   }
 
