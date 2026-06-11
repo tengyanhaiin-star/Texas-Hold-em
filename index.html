@@ -228,7 +228,7 @@ function cmpHand(a,b){
   return 0;
 }
 
-function chenScore(hole){
+function chenScore(hole,activePlayers){
   var vals=hole.map(function(c){return RV[c.r];}).sort(function(a,b){return b-a;});
   var a=vals[0],b=vals[1],suited=hole[0].s===hole[1].s,paired=a===b;
   var score=paired?Math.max(5,a):a/2;
@@ -236,7 +236,8 @@ function chenScore(hole){
   var gap=a-b;
   if(gap===1)score+=1;else if(gap===3)score-=1;else if(gap===4)score-=2;else if(gap>4)score-=4;
   if(a>=11&&b>=11)score+=1;
-  return Math.min(Math.max(score*0.06,0),1);
+  var divisor={2:10,3:11,4:12,5:13,6:14}[activePlayers]||14;
+  return Math.min(Math.max(score/divisor,0),1);
 }
 
 function estimateWinProb(holeCards,community,numOpponents,iterations){
@@ -436,13 +437,13 @@ function runAI(id){
   var opponents=inHand().filter(function(x){return x.id!==id;}).length;
   var strength,soleWinRate=0;
   if(G.phase==="preflop"){
-    strength=chenScore(hole);
+    strength=chenScore(hole,inHand().length);
   } else {
     var result=estimateWinProb(hole,comm,opponents,1000);
     strength=result.winRate;soleWinRate=result.soleWinRate;
   }
 
-  // effectiveStrength：每次有人加注乘以0.9
+  // effectiveStrength：每次有人加注乘以0.96
   var effectiveStrength=strength*Math.pow(0.9,G.totalRaiseCount||0);
 
   // 风格参数
