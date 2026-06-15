@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--
+  Playing card graphics provided by SVG-cards
+  https://github.com/htdebeer/SVG-cards
+  Licensed under the GNU Lesser General Public License v2.1 (LGPL-2.1)
+  https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+-->
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -119,7 +125,7 @@ function cardEl(card,hidden,small){
   el.style.width=dispW+"px";
   el.style.height=dispH+"px";
   if(hidden||!card){
-    el.innerHTML='<svg width="'+dispW+'" height="'+dispH+'" viewBox="0 0 '+CARD_W+' '+CARD_H+'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use href="svg-cards.svg#alternate-back" x="0" y="0" fill="#1a56db"/></svg>';
+    el.innerHTML='<svg width="'+dispW+'" height="'+dispH+'" viewBox="0 0 '+CARD_W+' '+CARD_H+'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use href="svg-cards.svg#back" x="0" y="0" fill="#1a56db"/></svg>';
     return el;
   }
   var suitMap={"\u2660":"spade","\u2665":"heart","\u2666":"diamond","\u2663":"club"};
