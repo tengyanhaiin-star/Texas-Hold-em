@@ -112,7 +112,7 @@ function estimateWinProb(holeCards,community,numOpponents,iterations){iterations
 // Card natural size: 169.075 x 244.640
 function cardEl(card,hidden,small){
   var CARD_W=169.075, CARD_H=244.640;
-  var dispW=small?72:90;
+  var dispW=90;
   var dispH=Math.round(CARD_H/CARD_W*dispW);
   var el=document.createElement("div");
   el.style.cssText="flex-shrink:0;display:inline-block;border-radius:8px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,0.35);";
