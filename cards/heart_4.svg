@@ -44,7 +44,7 @@
         <animateTransform
         attributeName="transform"
         type="translate"
-        values="0 0; 80 0; 0 0"
+        values="0 0; 0 -80; 0 0"
         keyTimes="0; 0.5; 1"
         dur="2s"
         repeatCount="indefinite" />
@@ -54,7 +54,7 @@
         <animateTransform
         attributeName="transform"
         type="translate"
-        values="0 0; 80 0; 0 0"
+        values="0 0; 0 80; 0 0"
         keyTimes="0; 0.5; 1"
         dur="2s"
         repeatCount="indefinite" />
@@ -64,7 +64,7 @@
         <animateTransform
         attributeName="transform"
         type="translate"
-        values="0 0; 80 0; 0 0"
+        values="0 0; -80 0; 0 0"
         keyTimes="0; 0.5; 1"
         dur="2s"
         repeatCount="indefinite" />
