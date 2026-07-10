@@ -69,5 +69,5 @@ Straight Flush · Four of a Kind · Full House · Flush · Straight · Three of 
 
 ## Credits
 
-- Card graphics: [SVG-cards](https://github.com/htdebeer/SVG-cards) by Huub de Beer — licensed under [LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
+- Card graphics: [SVG-cards](https://github.com/htdebeer/SVG-cards) by Huub de Beer, originally created by David Bellot — licensed under [LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
 - Fonts: [Noticia Text](https://fonts.google.com/specimen/Noticia+Text) via Google Fonts
