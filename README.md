@@ -1,6 +1,6 @@
 # Texas Hold'em Poker
 
-A single-file browser-based Fixed-Limit Texas Hold'em poker game. No installation, no build step — just click [here](https://tengyanhaiin-star.github.io/Texas-Hold-em/) and play.
+A browser-based Fixed-Limit Texas Hold'em poker game. No installation, no build step — just click [here](https://tengyanhaiin-star.github.io/Texas-Hold-em/) and play.
 
 ---
 
