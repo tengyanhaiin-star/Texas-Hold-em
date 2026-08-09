@@ -121,7 +121,7 @@ function cardEl(card,hidden,small){
   var dispW=120;
   var dispH=Math.round(CARD_H/CARD_W*dispW);
   var el=document.createElement("div");
-  el.style.cssText="flex-shrink:0;display:inline-block;border-radius:8px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,0.35);";
+  el.style.cssText="flex-shrink:0;display:inline-block;border-radius:5px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,0.35);";
   el.style.width=dispW+"px";
   el.style.height=dispH+"px";
   if(hidden||!card){
