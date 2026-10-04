@@ -33,6 +33,11 @@ button{font-family:'Noticia Text',Georgia,serif;cursor:pointer}
 #seat-4{left:65%;top:10%}
 #seat-5{left:96%;top:10%}
 #bottom-bar{position:absolute;bottom:-72px;right:-52px;display:flex;align-items:flex-end;}
+#card-theme-menu{position:absolute;bottom:-72px;left:-52px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;}
+#card-theme-menu label{font-size:16px;color:#a0aec0;}
+#card-theme-select{font:inherit;font-size:16px;color:#fff;background:#276749;border:2px solid #48bb78;border-radius:8px;padding:9px 12px;min-width:240px;cursor:pointer;}
+#card-theme-select:focus-visible{outline:3px solid #90cdf4;outline-offset:3px;}
+#card-theme-select option{color:#fff;background:#173d28;}
 #message{font-size:16px;color:#a0aec0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:360px;text-align:right;margin-bottom:4px}
 #controls-wrap{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0}
 #controls{display:flex;gap:8px;flex-wrap:nowrap;flex-shrink:0}
@@ -76,6 +81,10 @@ button{font-family:'Noticia Text',Georgia,serif;cursor:pointer}
 </div>
 </div>
 <div class="seat" id="seat-0"></div>
+<div id="card-theme-menu">
+<label for="card-theme-select">Card Design</label>
+<select id="card-theme-select" aria-label="Card design"></select>
+</div>
 <div id="bottom-bar">
 <div id="controls-wrap">
 <div id="message">Welcome to Texas Hold'em! Press Deal to start.</div>
@@ -113,27 +122,71 @@ function cmpHand(a,b){if(!a)return 1;if(!b)return -1;if(b.rank!==a.rank)return b
 function chenScore(hole,activePlayers){var vals=hole.map(function(c){return RV[c.r];}).sort(function(a,b){return b-a;});var a=vals[0],b=vals[1],suited=hole[0].s===hole[1].s,paired=a===b;var score=paired?Math.max(5,a):a/2;if(suited)score+=2;var gap=a-b;if(gap===1)score+=1;else if(gap===3)score-=1;else if(gap===4)score-=2;else if(gap>4)score-=4;if(a>=11&&b>=11)score+=1;var divisor={2:10,3:11,4:12,5:13,6:14}[activePlayers]||14;return Math.min(Math.max(score/divisor,0),1);}
 function estimateWinProb(holeCards,community,numOpponents,iterations){iterations=iterations||1000;var knownOpponentCards=arguments[4]||[];var known={};holeCards.concat(community).forEach(function(c){known[c.s+c.r]=true;});knownOpponentCards.forEach(function(c){known[c.s+c.r]=true;});var deck=makeDeck().filter(function(c){return!known[c.s+c.r];});if(community.length===5&&knownOpponentCards.length===numOpponents*2){var myBest=bestHand(holeCards,community);var beat=false,tied=false;for(var oi=0;oi<numOpponents;oi++){var oppHole=knownOpponentCards.slice(oi*2,oi*2+2);var oppBest=bestHand(oppHole,community);var cv=cmpHand(myBest,oppBest);if(cv>0){beat=true;break;}if(cv===0)tied=true;}return{winRate:beat?0:(tied?0.5:1),soleWinRate:beat||tied?0:1};}var wins=0,soleWins=0;for(var i=0;i<iterations;i++){var d=shuffle(deck),di=0,board=community.slice();while(board.length<5)board.push(d[di++]);var myBest=bestHand(holeCards,board);if(!myBest)continue;var oppHands=[];for(var oi=0;oi<knownOpponentCards.length;oi+=2)oppHands.push(bestHand([knownOpponentCards[oi],knownOpponentCards[oi+1]],board));var unknownOpponents=numOpponents-knownOpponentCards.length/2;for(var o=0;o<unknownOpponents;o++)oppHands.push(bestHand([d[di++],d[di++]],board));var beat=false,tied=false;for(var o=0;o<oppHands.length;o++){var cv=cmpHand(myBest,oppHands[o]);if(cv>0){beat=true;break;}if(cv===0)tied=true;}if(!beat){wins++;if(!tied)soleWins++;}}return{winRate:wins/iterations,soleWinRate:soleWins/iterations};}
 
-// ── cardEl: uses SVG-cards library ──
-// Requires svg-cards.svg in the same directory.
-// Card natural size: 169.075 x 244.640
+// Card themes share the same suit/rank filenames. Preserve each deck's aspect ratio.
+var CARD_THEMES={
+  "svg-cards":{label:"SVG-cards",directory:"cards/",extension:"svg",width:169.075,height:244.640},
+  "geometric-rhapsody":{label:"Geometric Rhapsody",directory:"cards/geometric-rhapsody/",extension:"png",width:630,height:880}
+};
+var CARD_THEME_KEY="texas-holdem-card-theme";
+var activeCardTheme="svg-cards";
+function isCardTheme(id){return Object.prototype.hasOwnProperty.call(CARD_THEMES,id);}
+function initCardThemes(){
+  try{
+    var saved=localStorage.getItem(CARD_THEME_KEY);
+    if(isCardTheme(saved))activeCardTheme=saved;
+  }catch(e){/* The selector also works when browser storage is unavailable. */}
+  var select=document.getElementById("card-theme-select");
+  Object.keys(CARD_THEMES).forEach(function(id){
+    var option=document.createElement("option");
+    option.value=id;
+    option.textContent=CARD_THEMES[id].label;
+    select.appendChild(option);
+  });
+  select.value=activeCardTheme;
+  select.addEventListener("change",function(){changeCardTheme(select.value);});
+}
+function changeCardTheme(id){
+  if(!isCardTheme(id))return;
+  activeCardTheme=id;
+  document.getElementById("card-theme-select").value=id;
+  try{localStorage.setItem(CARD_THEME_KEY,id);}catch(e){}
+  // Refresh only card graphics: render() would restart the next-hand countdown.
+  document.querySelectorAll(".playing-card").forEach(function(el){
+    var hidden=el.dataset.hidden==="true";
+    var card=hidden?null:{s:el.dataset.suit,r:el.dataset.rank};
+    el.replaceWith(cardEl(card,hidden));
+  });
+}
 function cardEl(card,hidden,small){
-  var CARD_W=169.075, CARD_H=244.640;
+  var theme=CARD_THEMES[activeCardTheme];
+  var CARD_W=theme.width, CARD_H=theme.height;
   var dispW=120;
-  var dispH=Math.round(CARD_H/CARD_W*dispW);
+  var dispH=CARD_H/CARD_W*dispW;
   var el=document.createElement("div");
+  el.className="playing-card";
+  el.dataset.hidden=String(!!hidden||!card);
   el.style.cssText="flex-shrink:0;display:inline-block;border-radius:5px;overflow:hidden;box-shadow:0 3px 8px rgba(0,0,0,0.35);";
   el.style.width=dispW+"px";
   el.style.height=dispH+"px";
-  if(hidden||!card){
-    el.innerHTML='<svg width="'+dispW+'" height="'+dispH+'" viewBox="0 0 '+CARD_W+' '+CARD_H+'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use href="svg-cards.svg#back" x="0" y="0" fill="#1a56db"/></svg>';
+  if((hidden||!card)&&activeCardTheme==="svg-cards"){
+    el.innerHTML='<svg role="img" aria-label="Face-down card" width="'+dispW+'" height="'+dispH+'" viewBox="0 0 '+CARD_W+' '+CARD_H+'" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use href="svg-cards.svg#back" x="0" y="0" fill="#1a56db"/></svg>';
     return el;
   }
   var suitMap={"\u2660":"spade","\u2665":"heart","\u2666":"diamond","\u2663":"club"};
   var rankMap={"A":"1","2":"2","3":"3","4":"4","5":"5","6":"6","7":"7","8":"8","9":"9","10":"10","J":"jack","Q":"queen","K":"king"};
-  var suit=suitMap[card.s]||"spade";
-  var rank=rankMap[card.r]||card.r;
-  var cardId=suit+"_"+rank;
-  el.innerHTML='<img src="cards/'+cardId+'.svg" style="width:'+dispW+'px;height:'+dispH+'px;display:block;"/>';
+  var cardId="back",alt="Face-down card";
+  if(!hidden&&card){
+    el.dataset.suit=card.s;
+    el.dataset.rank=card.r;
+    cardId=(suitMap[card.s]||"spade")+"_"+(rankMap[card.r]||card.r);
+    alt=card.r+" "+card.s;
+  }
+  var img=document.createElement("img");
+  img.src=theme.directory+cardId+"."+theme.extension;
+  img.alt=alt;
+  img.draggable=false;
+  img.style.cssText="width:100%;height:100%;object-fit:contain;display:block;";
+  el.appendChild(img);
   return el;
 }
 
@@ -152,6 +205,7 @@ function advancePhase(){var newBets={};G.players.forEach(function(p){newBets[p.i
 function doShowdown(){G.phase="showdown";G.activeId=null;soundShowdown();var competing=inHand();var results=competing.map(function(p){return Object.assign({},p,{best:bestHand(G.hands[p.id]||[],G.community)});});var bestRank=-1;for(var i=0;i<results.length;i++){if(results[i].best&&results[i].best.rank>bestRank)bestRank=results[i].best.rank;}var candidates=results.filter(function(r){return r.best&&r.best.rank===bestRank;});candidates.sort(function(a,b){var av=a.best.vals,bv=b.best.vals;for(var i=0;i<Math.max(av.length,bv.length);i++){if((bv[i]||0)!==(av[i]||0))return(bv[i]||0)-(av[i]||0);}return 0;});var topVals=candidates[0].best.vals;var ws=candidates.filter(function(r){var v=r.best.vals;for(var i=0;i<Math.max(v.length,topVals.length);i++){if((v[i]||0)!==(topVals[i]||0))return false;}return true;});var share=Math.floor(G.pot/ws.length),remainder=G.pot-share*ws.length;var allIds=G.players.map(function(p){return p.id;});var sortedW=ws.slice().sort(function(a,b){var ai=(allIds.indexOf(a.id)-G.dealerIdx-1+allIds.length)%allIds.length;var bi=(allIds.indexOf(b.id)-G.dealerIdx-1+allIds.length)%allIds.length;return ai-bi;});G.winners=ws.map(function(w){return w.id;});G.players=G.players.map(function(p){var wi=-1;for(var i=0;i<sortedW.length;i++){if(sortedW[i].id===p.id){wi=i;break;}}if(wi===-1)return p;return Object.assign({},p,{chips:p.chips+share+(wi<remainder?1:0)});});var names=ws.map(function(w){return w.id===0?"You":w.name;}).join(" & ");var hn=ws[0]&&ws[0].best?ws[0].best.name:"High Card";addLog(names+" won $"+G.pot+" ("+hn+")");var left=G.players.filter(function(p){return p.chips>0;});var winnerName=ws[0]?(ws[0].id===0?"You":ws[0].name):"Someone";if(left.length<=1){setMsg(names+" won the game!");soundWin();setTimeout(soundWin,500);}else{setMsg(names+" won $"+G.pot+" with "+hn+"!");soundWin();}G.dealerIdx=(G.dealerIdx+1)%Math.max(1,G.players.filter(function(p){return p.chips>0||G.winners.indexOf(p.id)>=0;}).length);render();}
 function humanAction(action){if(G.activeId!==0||G.phase==="idle"||G.phase==="showdown")return;applyAction(0,action);}
 function render(){var players=G.players,hands=G.hands,community=G.community,pot=G.pot,bets=G.bets;var folded=G.folded,allin=G.allin,phase=G.phase,activeId=G.activeId,winners=G.winners,log=G.log,roundBet=G.roundBet;var phaseLabel={idle:"",preflop:"PRE-FLOP",flop:"FLOP",turn:"TURN",river:"RIVER",showdown:"SHOWDOWN"}[phase]||"";var isMyTurn=activeId===0&&phase!=="idle"&&phase!=="showdown"&&!folded.has(0)&&!allin.has(0);var pb=document.getElementById("phase-badge");pb.style.display=phaseLabel?"inline-block":"none";pb.textContent=phaseLabel;var pc=document.getElementById("pot-chip");pc.innerHTML="";pc.appendChild(chipEl(pot,"#d69e2e"));var aiPlayers=players.filter(function(p){return!p.human;});var seatMap={0:players.find(function(p){return p.human;})};aiPlayers.forEach(function(p,i){seatMap[i+1]=p;});for(var si=0;si<=5;si++){var seat=document.getElementById("seat-"+si);if(!seat)continue;var p=seatMap[si];if(!p){seat.innerHTML="";continue;}var isHuman=p.human;var isFolded=folded.has(p.id),isAllin=allin.has(p.id),isActive=activeId===p.id&&phase!=="idle"&&phase!=="showdown",isWinner=winners.indexOf(p.id)>=0;var box=document.createElement("div");var cls="pbox"+(isHuman?" human":"")+(isFolded?" folded":isWinner?" winner":isActive?" active":isAllin?" allin":"")+(isHuman&&isMyTurn?" myturn":"");box.className=cls;if(isActive&&!isHuman){var tb=document.createElement("div");tb.className="thinking-badge";tb.textContent="THINKING";box.appendChild(tb);}var nameRow=document.createElement("div");nameRow.style.cssText="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:3px";var nl=document.createElement("span");nl.style.cssText="font-size:16px;font-weight:normal;white-space:nowrap";nl.textContent=isHuman?("You"+(isMyTurn?" \u{1F535}":isAllin?" (All-In)":"")):p.name;nameRow.appendChild(nl);nameRow.appendChild(chipEl(p.chips,p.chips<100?"#c53030":"#2b6cb0"));box.appendChild(nameRow);var cr=document.createElement("div");cr.style.cssText="display:flex;gap:4px;justify-content:center;margin:3px 0";var useSmall=!isHuman;if(phase==="showdown"&&hands[p.id]){var hideInShowdown=isFolded&&isHuman;hands[p.id].forEach(function(c){cr.appendChild(cardEl(c,hideInShowdown,useSmall));});}else if(hands[p.id]){if(isHuman){hands[p.id].forEach(function(c){cr.appendChild(cardEl(c,false,false));});}else{cr.appendChild(cardEl(null,true,useSmall));cr.appendChild(cardEl(null,true,useSmall));}}else{cr.appendChild(cardEl(null,true,useSmall));cr.appendChild(cardEl(null,true,useSmall));}box.appendChild(cr);if(phase==="showdown"&&!isFolded&&hands[p.id]){var bh=bestHand(hands[p.id],G.community);if(bh){var hl=document.createElement("div");hl.style.cssText="font-size:16px;color:"+(isWinner?"#f6ad55":"#90cdf4");hl.textContent=bh.name;box.appendChild(hl);}}if(isHuman&&hands[0]&&community.length>0&&!isFolded&&phase!=="showdown"){var bh2=bestHand(hands[0],community);if(bh2){var bl=document.createElement("div");bl.style.cssText="font-size:16px;color:#90cdf4;margin-top:1px";bl.textContent="Best: "+bh2.name;box.appendChild(bl);}}if(isFolded){var fd=document.createElement("div");fd.style.cssText="font-size:16px;color:#fc8181";fd.textContent="FOLDED";box.appendChild(fd);}else if(isAllin){var ad=document.createElement("div");ad.style.cssText="font-size:16px;color:#63b3ed";ad.textContent="ALL-IN";box.appendChild(ad);}if(!isFolded&&(bets[p.id]||0)>0){var br2=document.createElement("div");br2.style.cssText="font-size:16px;margin-top:2px";br2.textContent="Bet: ";br2.appendChild(chipEl(bets[p.id],"#6b46c1"));box.appendChild(br2);}seat.innerHTML="";seat.appendChild(box);}var cc=document.getElementById("community-cards");cc.innerHTML="";if(community.length===0){var cs=document.createElement("span");cs.style.cssText="color:#a0aec0;font-size:16px;align-self:center";cs.textContent="Waiting for deal...";cc.appendChild(cs);}else community.forEach(function(c){cc.appendChild(cardEl(c,false,false));});var ctrl=document.getElementById("controls");ctrl.innerHTML="";var toCall=Math.max(0,roundBet-(bets[0]||0));var human=players.find(function(p){return p.id===0;});if(phase==="idle"||phase==="showdown"){var withChips=players.filter(function(p){return p.chips>0;});var gameOver=withChips.length<=1;var nextAction=gameOver?init:startHand,nextLabel=gameOver?"New Game":"Next Hand";var btn=document.createElement("button");btn.style.cssText="background:#276749;border:2px solid #48bb78;color:#fff;padding:9px 28px;border-radius:8px;font-size:16px;font-weight:normal";if(phase==="showdown"&&!gameOver){if(nextHandTimer)clearInterval(nextHandTimer);var secs=10;btn.textContent=nextLabel+" ("+secs+"s)";nextHandTimer=setInterval(function(){secs--;if(secs<=0){clearInterval(nextHandTimer);nextHandTimer=null;nextAction();}else btn.textContent=nextLabel+" ("+secs+"s)";},1000);btn.onclick=function(){clearInterval(nextHandTimer);nextHandTimer=null;nextAction();};}else{if(nextHandTimer){clearInterval(nextHandTimer);nextHandTimer=null;}btn.textContent=phase==="idle"?"Deal Cards":nextLabel;btn.onclick=nextAction;}ctrl.appendChild(btn);}else{var mkBtn=function(label,color,act,enabled){var b=document.createElement("button");b.style.cssText="background:"+color+";border:none;color:#fff;padding:8px 18px;border-radius:6px;font-weight:normal;font-size:16px;opacity:"+(enabled?1:0.4)+";cursor:"+(enabled?"pointer":"not-allowed");b.disabled=!enabled;b.textContent=label;b.onclick=function(){humanAction(act);};return b;};var betUnit=(G.phase==="turn"||G.phase==="river")?BB*2:BB;var raiseCap=G.phase==="preflop"?3:4;var raiseCapped=(G.roundRaiseCount||0)>=raiseCap;var canRaise=isMyTurn&&!raiseCapped&&(human?human.chips:0)>0&&(human?human.chips:0)+(bets[0]||0)>=roundBet+betUnit;ctrl.appendChild(mkBtn("Fold","#c53030","fold",isMyTurn));ctrl.appendChild(mkBtn(toCall===0?"Check":"Call $"+toCall,"#2b6cb0",toCall===0?"check":"call",isMyTurn));ctrl.appendChild(mkBtn(raiseCapped?"Raise (cap)":"Raise +$"+betUnit,"#d69e2e","raise",canRaise));}var le=document.getElementById("log-entries");le.innerHTML="";if(log&&log.length>0){log.forEach(function(l,i){var d=document.createElement("div");d.className="log-entry"+(i===0?" latest":"");d.textContent=l;le.appendChild(d);});le.scrollTop=0;}}
+initCardThemes();
 init();
 applyScale();
 </script>
