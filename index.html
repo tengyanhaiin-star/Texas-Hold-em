@@ -55,6 +55,13 @@ button{font-family:'Noticia Text',Georgia,serif;cursor:pointer}
 #community-label{font-size:16px;color:#a0aec0;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase}
 #community-cards{display:flex;gap:7px;align-items:center;justify-content:center;min-height:90px;min-width:460px}
 #phase-badge{background:#276749;padding:2px 10px;border-radius:10px;font-size:16px;letter-spacing:1px;text-transform:uppercase}
+/* Keep the table's border width and seat positions when showing full-canvas artwork. */
+#game-canvas.has-theme-background{background-image:var(--theme-background);background-size:cover;background-position:center;background-repeat:no-repeat;}
+#game-canvas.has-theme-background #table{background:transparent;border-color:transparent;box-shadow:none;}
+#game-canvas.has-theme-background #community-wrap{background:rgba(7,13,20,0.82);}
+#game-canvas.has-theme-background #pot-row{background:rgba(7,13,20,0.82);box-shadow:0 0 0 4px rgba(7,13,20,0.82);border-radius:6px;}
+#game-canvas.has-theme-background #card-theme-menu label,
+#game-canvas.has-theme-background #message{color:#edf2f7;background:rgba(7,13,20,0.86);border-radius:4px;padding:2px 6px;}
 #sidebar{display:none}
 .log-entry{font-size:12px;color:#718096;line-height:1.4;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
 .log-entry.latest{color:#e2e8f0}
@@ -125,12 +132,20 @@ function estimateWinProb(holeCards,community,numOpponents,iterations){iterations
 // Card themes share the same suit/rank filenames. Preserve each deck's aspect ratio.
 var CARD_THEMES={
   "svg-cards":{label:"SVG-cards",directory:"cards/",extension:"svg",width:169.075,height:244.640},
-  "geometric-rhapsody":{label:"Geometric Rhapsody",directory:"cards/geometric-rhapsody/",extension:"png",width:630,height:880},
-  "blood-moon-castle":{label:"Blood Moon Castle",directory:"cards/blood-moon-castle/",extension:"webp",width:630,height:880}
+  "geometric-rhapsody":{label:"Geometric Rhapsody",directory:"cards/geometric-rhapsody/",extension:"png",width:630,height:880,background:"backgrounds/geometric-rhapsody.webp",surround:"#171e29"},
+  "blood-moon-castle":{label:"Blood Moon Castle",directory:"cards/blood-moon-castle/",extension:"webp",width:630,height:880,background:"backgrounds/blood-moon-castle.webp",surround:"#0c111b"}
 };
 var CARD_THEME_KEY="texas-holdem-card-theme";
 var activeCardTheme="svg-cards";
 function isCardTheme(id){return Object.prototype.hasOwnProperty.call(CARD_THEMES,id);}
+function applyThemeBackground(){
+  var theme=CARD_THEMES[activeCardTheme];
+  var canvas=document.getElementById("game-canvas");
+  canvas.classList.toggle("has-theme-background",!!theme.background);
+  if(theme.background)canvas.style.setProperty("--theme-background",'url("'+theme.background+'")');
+  else canvas.style.removeProperty("--theme-background");
+  document.body.style.backgroundColor=theme.surround||"";
+}
 function initCardThemes(){
   try{
     var saved=localStorage.getItem(CARD_THEME_KEY);
@@ -144,6 +159,7 @@ function initCardThemes(){
     select.appendChild(option);
   });
   select.value=activeCardTheme;
+  applyThemeBackground();
   select.addEventListener("change",function(){changeCardTheme(select.value);});
 }
 function changeCardTheme(id){
@@ -151,7 +167,8 @@ function changeCardTheme(id){
   activeCardTheme=id;
   document.getElementById("card-theme-select").value=id;
   try{localStorage.setItem(CARD_THEME_KEY,id);}catch(e){}
-  // Refresh only card graphics: render() would restart the next-hand countdown.
+  applyThemeBackground();
+  // Refresh only appearance: render() would restart the next-hand countdown.
   document.querySelectorAll(".playing-card").forEach(function(el){
     var hidden=el.dataset.hidden==="true";
     var card=hidden?null:{s:el.dataset.suit,r:el.dataset.rank};
