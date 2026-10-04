@@ -9,7 +9,7 @@ A browser-based Fixed-Limit Texas Hold'em poker game. No installation, no build 
 - **6-player table** — You vs. 5 AI opponents, each with a distinct personality
 - **Fixed-Limit betting** — Small bet / big bet structure with a 4-raise cap per round
 - **Realistic card graphics** — Rendered via the [SVG-cards](https://github.com/htdebeer/SVG-cards) library
-- **Selectable card designs** — Choose SVG-cards or Geometric Rhapsody from the lower-left menu, opposite the deal/action controls. Fronts and backs change immediately without restarting the hand; the browser remembers your choice.
+- **Selectable card designs** — Choose SVG-cards, Geometric Rhapsody, or Blood Moon Castle from the lower-left menu, opposite the deal/action controls. Fronts and backs change immediately without restarting the hand; the browser remembers your choice.
 - **Casino-style table** — Oval felt table on a 1200×700 canvas, scales to any screen size
 - **Sound effects** — Web Audio API tones for deal, check, call, raise, fold, all-in, and win
 - **Auto-advance** — Next hand starts automatically after a 10-second countdown
@@ -62,6 +62,7 @@ Straight Flush · Four of a Kind · Full House · Flush · Straight · Three of 
 - Pure vanilla JavaScript, no frameworks or build tools
 - Canvas: fixed 1200×700 px, CSS-scaled to viewport via `transform: scale()`
 - Card rendering: SVG-cards faces use individual SVG files in `cards/`; its blue back references `svg-cards.svg`. Geometric Rhapsody uses the original 630×880 PNG artwork in `cards/geometric-rhapsody/`, preserving its aspect ratio.
+- Blood Moon Castle: the latest supplied 630×880 artwork is stored as lossless WebP in `cards/blood-moon-castle/`. Every decoded pixel matches its source PNG; the original dimensions and aspect ratio are preserved.
 - Card themes: configured in `CARD_THEMES` inside `index.html`; files follow the existing `spade_1`, `heart_jack`, etc. naming convention, with `back` for the reverse. Only the 52 standard faces and one back are used.
 - Theme preference: saved locally as `texas-holdem-card-theme`; defaults to SVG-cards and remains usable when browser storage is blocked. Switching only refreshes card graphics, so game state and timers are preserved.
 - AI hand strength: Chen Formula (pre-flop) + Monte Carlo win-rate simulation (post-flop)
@@ -74,4 +75,5 @@ Straight Flush · Four of a Kind · Full House · Flush · Straight · Three of 
 
 - Card graphics: [SVG-cards](https://github.com/htdebeer/SVG-cards) by Huub de Beer, originally created by David Bellot — licensed under [LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
 - Geometric Rhapsody: custom deck artwork supplied for this project.
+- Blood Moon Castle: custom deck artwork supplied for this project.
 - Fonts: [Noticia Text](https://fonts.google.com/specimen/Noticia+Text) via Google Fonts
