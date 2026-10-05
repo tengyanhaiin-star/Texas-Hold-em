@@ -61,7 +61,7 @@ Straight Flush · Four of a Kind · Full House · Flush · Straight · Three of 
 
 - Pure vanilla JavaScript, no frameworks or build tools
 - Canvas: fixed 1200×700 px, CSS-scaled to viewport via `transform: scale()`
-- Card rendering: SVG-cards faces use individual SVG files in `cards/`; its blue back references `svg-cards.svg`. Geometric Rhapsody uses the original 630×880 PNG artwork in `cards/geometric-rhapsody/`, preserving its aspect ratio.
+- Card rendering: SVG-cards faces use individual SVG files in `cards/`; its blue back references `svg-cards.svg`. Geometric Rhapsody uses 53 lossless WebP images in `cards/geometric-rhapsody/`. Every decoded pixel matches its source PNG; the original 630×880 dimensions and aspect ratio are preserved.
 - Blood Moon Castle: the latest supplied 630×880 artwork is stored as lossless WebP in `cards/blood-moon-castle/`. Every decoded pixel matches its source PNG; the original dimensions and aspect ratio are preserved.
 - Card themes: configured in `CARD_THEMES` inside `index.html`; files follow the existing `spade_1`, `heart_jack`, etc. naming convention, with `back` for the reverse. Only the 52 standard faces and one back are used.
 - Theme backgrounds: 1200×700 WebP images in `backgrounds/`, configured with the optional `background` and `surround` properties in `CARD_THEMES`. The custom themes hide the felt-table decoration while preserving the table geometry; dark panels keep foreground text readable. See [background asset notes](backgrounds/README.md) for generation prompts.
