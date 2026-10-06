@@ -71,10 +71,9 @@ function setup({ deferred = false, suspended = false, failFirst = false } = {}) 
     decoded: () => decodeCount, release: () => pending.splice(0).forEach(resolve => resolve()) };
 }
 
-test('both music themes reference supplied MP3s; SVG-cards stays silent', () => {
+test('all three themes reference their supplied MP3s', () => {
   const { sandbox: s } = setup();
-  assert.equal(s.CARD_THEMES['svg-cards'].music, undefined);
-  for (const theme of ['geometric-rhapsody', 'blood-moon-castle']) {
+  for (const theme of ['svg-cards', 'geometric-rhapsody', 'blood-moon-castle']) {
     assert.equal(s.CARD_THEMES[theme].music, `audio/${theme}.mp3`);
     assert.ok(fs.statSync(path.join(root, s.CARD_THEMES[theme].music)).size > 0);
   }
@@ -82,7 +81,7 @@ test('both music themes reference supplied MP3s; SVG-cards stays silent', () => 
 
 test('each entry starts at zero, loops, and stops before the next theme starts', async () => {
   const h = setup(), s = h.sandbox;
-  for (const theme of ['blood-moon-castle', 'geometric-rhapsody', 'blood-moon-castle']) {
+  for (const theme of ['svg-cards', 'geometric-rhapsody', 'blood-moon-castle', 'svg-cards']) {
     s.changeCardTheme(theme);
     await settle();
     const source = h.sources.at(-1);
@@ -92,10 +91,10 @@ test('each entry starts at zero, loops, and stops before the next theme starts',
     assert.equal(h.gains.at(-1).gain.value, 0.35);
     assert.equal(h.sources.filter(source => !source.stopped).length, 1);
   }
-  assert.equal(h.requests.length, 2);
-  assert.equal(h.decoded(), 2);
-  assert.deepEqual(h.events.map(event => event[0]), ['start', 'stop', 'start', 'stop', 'start']);
-  s.changeCardTheme('svg-cards');
+  assert.equal(h.requests.length, 3);
+  assert.equal(h.decoded(), 3);
+  assert.deepEqual(h.events.map(event => event[0]), ['start', 'stop', 'start', 'stop', 'start', 'stop', 'start']);
+  s.stopThemeMusic();
   await settle();
   assert.equal(s.themeMusicSource, null);
   assert.equal(s.themeMusicGain, null);
@@ -106,42 +105,44 @@ test('each entry starts at zero, loops, and stops before the next theme starts',
 
 test('leaving during loading prevents late playback', async () => {
   const h = setup({ deferred: true }), s = h.sandbox;
-  s.changeCardTheme('blood-moon-castle');
   s.changeCardTheme('svg-cards');
+  s.changeCardTheme('blood-moon-castle');
   h.release();
   await settle();
-  assert.equal(h.sources.length, 0);
-  assert.equal(s.themeMusicSource, null);
+  assert.equal(h.sources.length, 1);
+  assert.equal(s.themeMusicSource.buffer.url, 'audio/blood-moon-castle.mp3');
 });
 
-test('rapid switches while both tracks load start only the latest theme once', async () => {
+test('rapid switches while all three tracks load start only the latest theme once', async () => {
   const h = setup({ deferred: true }), s = h.sandbox;
+  s.changeCardTheme('svg-cards');
   s.changeCardTheme('blood-moon-castle');
   s.changeCardTheme('geometric-rhapsody');
-  s.changeCardTheme('blood-moon-castle');
+  s.changeCardTheme('svg-cards');
   h.listeners.click();
   h.listeners.keydown();
   h.release();
   await settle();
-  assert.equal(h.requests.length, 2);
+  assert.equal(h.requests.length, 3);
+  assert.equal(h.sources.length, 1);
+  assert.equal(h.sources[0].buffer.url, 'audio/svg-cards.mp3');
+});
+
+test('an old suspended resume cannot start the previous theme after switching', async () => {
+  const h = setup({ suspended: true }), s = h.sandbox;
+  s.changeCardTheme('svg-cards');
+  await settle();
+  assert.equal(h.sources.length, 0);
+  s.changeCardTheme('blood-moon-castle');
+  h.release();
+  await settle();
   assert.equal(h.sources.length, 1);
   assert.equal(h.sources[0].buffer.url, 'audio/blood-moon-castle.mp3');
 });
 
-test('an old suspended resume cannot start after switching to a silent theme', async () => {
-  const h = setup({ suspended: true }), s = h.sandbox;
-  s.changeCardTheme('blood-moon-castle');
-  await settle();
-  assert.equal(h.sources.length, 0);
-  s.changeCardTheme('svg-cards');
-  h.release();
-  await settle();
-  assert.equal(h.sources.length, 0);
-});
-
 test('unlocking a suspended context preserves the existing source', async () => {
   const h = setup(), s = h.sandbox;
-  s.changeCardTheme('blood-moon-castle');
+  s.changeCardTheme('svg-cards');
   await settle();
   h.ctx.state = 'suspended';
   h.listeners.click();
@@ -155,14 +156,14 @@ test('unlocking a suspended context preserves the existing source', async () => 
 
 test('failed music loads can retry without disabling game sound effects', async () => {
   const h = setup({ failFirst: true }), s = h.sandbox;
-  s.changeCardTheme('blood-moon-castle');
+  s.changeCardTheme('svg-cards');
   await settle();
   assert.equal(h.warnings.length, 1);
   assert.equal(h.sources.length, 0);
   h.listeners.click();
   await settle();
   assert.equal(h.sources.length, 1);
-  s.changeCardTheme('svg-cards');
+  s.changeCardTheme('blood-moon-castle');
   s.soundCheck();
   await settle();
   assert.equal(h.oscillators.length, 1);
