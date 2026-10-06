@@ -12,7 +12,7 @@ A browser-based Fixed-Limit Texas Hold'em poker game. No installation, no build 
 - **Selectable card designs** — Choose SVG-cards, Geometric Rhapsody, or Blood Moon Castle from the lower-left menu, opposite the deal/action controls. Fronts, backs, and the background change together without restarting the hand; the browser remembers your choice.
 - **Themed backgrounds** — SVG-cards keeps the oval felt table. Geometric Rhapsody uses a textured abstract geometric painting, and Blood Moon Castle uses a photorealistic Gothic castle under a blood moon. Each custom background fills the 1200×700 canvas, which scales to the screen.
 - **Sound effects** — Web Audio API tones for deal, check, call, raise, fold, all-in, and win
-- **Theme music** — Geometric Rhapsody and Blood Moon Castle each play their supplied MP3 from the beginning every time you select that theme, looping until you leave it. Switching themes stops the previous track before starting the next; SVG-cards has no background music.
+- **Theme music** — SVG-cards, Geometric Rhapsody, and Blood Moon Castle each play their supplied MP3 from the beginning every time you select that theme, looping until you leave it. Switching themes stops the previous track before starting the next.
 - **Auto-advance** — Next hand starts automatically after a 10-second countdown
 
 ---
@@ -68,7 +68,7 @@ Straight Flush · Four of a Kind · Full House · Flush · Straight · Three of 
 - Theme backgrounds: 1200×700 WebP images in `backgrounds/`, configured with the optional `background` and `surround` properties in `CARD_THEMES`. The custom themes hide the felt-table decoration while preserving the table geometry; dark panels keep foreground text readable. See [background asset notes](backgrounds/README.md) for generation prompts.
 - Theme preference: saved locally as `texas-holdem-card-theme`; defaults to SVG-cards and remains usable when browser storage is blocked. Switching updates card graphics, background styling, and theme music while preserving game state and timers. The saved background is restored on reload, and choosing SVG-cards restores the green table.
 - AI hand strength: Chen Formula (pre-flop) + Monte Carlo win-rate simulation (post-flop)
-- Audio: sound effects use Web Audio API (`OscillatorNode` + `GainNode`). Geometric Rhapsody uses `audio/geometric-rhapsody.mp3`, and Blood Moon Castle uses `audio/blood-moon-castle.mp3`, through one looping `AudioBufferSourceNode` on the same audio context, with a separate gain of 0.35. Each MP3 is loaded and decoded on demand, then cached separately for future selections. Each entry starts a fresh source at offset zero; leaving stops it and invalidates pending playback, without suspending game sound effects. If browser autoplay policy blocks the saved theme on page load, music starts after the first click or key interaction.
+- Audio: sound effects use Web Audio API (`OscillatorNode` + `GainNode`). SVG-cards uses `audio/svg-cards.mp3`, Geometric Rhapsody uses `audio/geometric-rhapsody.mp3`, and Blood Moon Castle uses `audio/blood-moon-castle.mp3`, through one looping `AudioBufferSourceNode` on the same audio context, with a separate gain of 0.35. Each MP3 is loaded and decoded on demand, then cached separately for future selections. Each entry starts a fresh source at offset zero; leaving stops it and invalidates pending playback, without suspending game sound effects. If browser autoplay policy blocks the default or saved theme on page load, music starts after the first click or key interaction.
 - Mobile / iOS: touch events handled via standard DOM; virtual layout scales automatically
 
 ### Checks
@@ -80,6 +80,7 @@ Run `node --test tests/theme-music.test.cjs` (Node.js 18+) for the theme-music s
 ## Credits
 
 - Card graphics: [SVG-cards](https://github.com/htdebeer/SVG-cards) by Huub de Beer, originally created by David Bellot — licensed under [LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
+- SVG-cards BGM: user-supplied `SVG_Cards_Lounge_Jazz_40s_96BPM.mp3`, copied unchanged. Despite the filename, the uploaded file is approximately 83 seconds long; the complete track loops.
 - Geometric Rhapsody: custom deck artwork supplied for this project.
 - Geometric Rhapsody BGM: user-supplied `Geometric_Rhapsody_BGM_30s_96BPM.mp3`, copied unchanged. The uploaded file is approximately 53 seconds long; the complete track loops.
 - Blood Moon Castle: custom deck artwork supplied for this project.
