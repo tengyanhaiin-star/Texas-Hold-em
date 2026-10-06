@@ -110,6 +110,55 @@ var RV={};RANKS.forEach(function(r,i){RV[r]=i+2;});
 var SC=1000,SB=10,BB=20;
 var audioCtx=null;
 function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+var themeMusicSource=null,themeMusicGain=null,themeMusicVersion=0;
+var themeMusicBuffers={};
+function stopThemeMusic(){
+  // Invalidate pending loads/resumes so a departed theme cannot start later.
+  themeMusicVersion++;
+  if(themeMusicSource){themeMusicSource.stop();themeMusicSource.disconnect();themeMusicSource=null;}
+  if(themeMusicGain){themeMusicGain.disconnect();themeMusicGain=null;}
+}
+function loadThemeMusic(ctx,url){
+  if(!themeMusicBuffers[url]){
+    themeMusicBuffers[url]=fetch(url).then(function(response){
+      if(!response.ok)throw new Error("Theme music request failed: "+response.status);
+      return response.arrayBuffer();
+    }).then(function(data){return ctx.decodeAudioData(data);}).catch(function(error){
+      delete themeMusicBuffers[url];
+      throw error;
+    });
+  }
+  return themeMusicBuffers[url];
+}
+function playThemeMusic(){
+  var url=CARD_THEMES[activeCardTheme].music;
+  if(!url)return;
+  var version=themeMusicVersion;
+  try{
+    var ctx=getAudioCtx();
+    // Call resume inside the selection/click/key event to satisfy autoplay policy.
+    var resumed=ctx.resume();
+    if(themeMusicSource){resumed.catch(function(){});return;}
+    Promise.all([resumed,loadThemeMusic(ctx,url)]).then(function(results){
+      if(version!==themeMusicVersion||themeMusicSource||ctx.state!=="running")return;
+      var source=ctx.createBufferSource(),gain=ctx.createGain();
+      source.buffer=results[1];
+      source.loop=true;
+      gain.gain.value=0.35;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0,0);
+      themeMusicSource=source;
+      themeMusicGain=gain;
+    }).catch(function(error){console.warn("Theme music could not start:",error);});
+  }catch(error){console.warn("Theme music is unavailable:",error);}
+}
+function updateThemeMusic(){stopThemeMusic();playThemeMusic();}
+function unlockThemeMusic(){
+  if(!themeMusicSource||(audioCtx&&audioCtx.state!=="running"))playThemeMusic();
+}
+document.addEventListener("click",unlockThemeMusic);
+document.addEventListener("keydown",unlockThemeMusic);
 function playTone(freq,type,duration,gain,delay){try{var ctx=getAudioCtx();ctx.resume().then(function(){var now=ctx.currentTime,osc=ctx.createOscillator(),g=ctx.createGain();osc.connect(g);g.connect(ctx.destination);osc.type=type||"sine";var t=now+(delay||0);osc.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(gain||0.3,t);g.gain.exponentialRampToValueAtTime(0.001,t+duration);osc.start(t);osc.stop(t+duration);});}catch(e){}}
 function soundDeal(){playTone(1200,"square",0.04,0.15);playTone(1000,"square",0.04,0.12,0.06);}
 function soundCheck(){playTone(440,"sine",0.12,0.18);}
@@ -132,7 +181,7 @@ function estimateWinProb(holeCards,community,numOpponents,iterations){iterations
 // Card themes share the same suit/rank filenames. Preserve each deck's aspect ratio.
 var CARD_THEMES={
   "svg-cards":{label:"SVG-cards",directory:"cards/",extension:"svg",width:169.075,height:244.640},
-  "geometric-rhapsody":{label:"Geometric Rhapsody",directory:"cards/geometric-rhapsody/",extension:"webp",width:630,height:880,background:"backgrounds/geometric-rhapsody.webp",surround:"#171e29"},
+  "geometric-rhapsody":{label:"Geometric Rhapsody",directory:"cards/geometric-rhapsody/",extension:"webp",width:630,height:880,background:"backgrounds/geometric-rhapsody.webp",surround:"#171e29",music:"audio/geometric-rhapsody.mp3"},
   "blood-moon-castle":{label:"Blood Moon Castle",directory:"cards/blood-moon-castle/",extension:"webp",width:630,height:880,background:"backgrounds/blood-moon-castle.webp",surround:"#0c111b"}
 };
 var CARD_THEME_KEY="texas-holdem-card-theme";
@@ -160,6 +209,7 @@ function initCardThemes(){
   });
   select.value=activeCardTheme;
   applyThemeBackground();
+  updateThemeMusic();
   select.addEventListener("change",function(){changeCardTheme(select.value);});
 }
 function changeCardTheme(id){
@@ -168,6 +218,7 @@ function changeCardTheme(id){
   document.getElementById("card-theme-select").value=id;
   try{localStorage.setItem(CARD_THEME_KEY,id);}catch(e){}
   applyThemeBackground();
+  updateThemeMusic();
   // Refresh only appearance: render() would restart the next-hand countdown.
   document.querySelectorAll(".playing-card").forEach(function(el){
     var hidden=el.dataset.hidden==="true";
