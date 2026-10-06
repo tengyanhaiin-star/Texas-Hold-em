@@ -87,6 +87,8 @@ test('each entry starts at zero, loops, and stops before the next theme starts',
     const source = h.sources.at(-1);
     assert.equal(source.buffer.url, `audio/${theme}.mp3`);
     assert.equal(source.loop, true);
+    assert.equal(source.loopStart, 0);
+    assert.equal(source.loopEnd, { 'svg-cards': 80, 'geometric-rhapsody': 50, 'blood-moon-castle': 91 }[theme]);
     assert.deepEqual(source.args, [0, 0]);
     assert.equal(h.gains.at(-1).gain.value, 0.35);
     assert.equal(h.sources.filter(source => !source.stopped).length, 1);
@@ -126,6 +128,7 @@ test('rapid switches while all three tracks load start only the latest theme onc
   assert.equal(h.requests.length, 3);
   assert.equal(h.sources.length, 1);
   assert.equal(h.sources[0].buffer.url, 'audio/svg-cards.mp3');
+  assert.equal(h.sources[0].loopEnd, 80);
 });
 
 test('an old suspended resume cannot start the previous theme after switching', async () => {
