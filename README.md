@@ -12,6 +12,7 @@ A browser-based Fixed-Limit Texas Hold'em poker game. No installation, no build 
 - **Selectable card designs** — Choose SVG-cards, Geometric Rhapsody, or Blood Moon Castle from the lower-left menu, opposite the deal/action controls. Fronts, backs, and the background change together without restarting the hand; the browser remembers your choice.
 - **Themed backgrounds** — SVG-cards keeps the oval felt table. Geometric Rhapsody uses a textured abstract geometric painting, and Blood Moon Castle uses a photorealistic Gothic castle under a blood moon. Each custom background fills the 1200×700 canvas, which scales to the screen.
 - **Sound effects** — Web Audio API tones for deal, check, call, raise, fold, all-in, and win
+- **Theme music** — Geometric Rhapsody plays its supplied MP3 from the beginning each time you select it, looping until you switch to another theme. SVG-cards and Blood Moon Castle have no background music.
 - **Auto-advance** — Next hand starts automatically after a 10-second countdown
 
 ---
@@ -65,9 +66,9 @@ Straight Flush · Four of a Kind · Full House · Flush · Straight · Three of 
 - Blood Moon Castle: the latest supplied 630×880 artwork is stored as lossless WebP in `cards/blood-moon-castle/`. Every decoded pixel matches its source PNG; the original dimensions and aspect ratio are preserved.
 - Card themes: configured in `CARD_THEMES` inside `index.html`; files follow the existing `spade_1`, `heart_jack`, etc. naming convention, with `back` for the reverse. Only the 52 standard faces and one back are used.
 - Theme backgrounds: 1200×700 WebP images in `backgrounds/`, configured with the optional `background` and `surround` properties in `CARD_THEMES`. The custom themes hide the felt-table decoration while preserving the table geometry; dark panels keep foreground text readable. See [background asset notes](backgrounds/README.md) for generation prompts.
-- Theme preference: saved locally as `texas-holdem-card-theme`; defaults to SVG-cards and remains usable when browser storage is blocked. Switching only refreshes card graphics and background styling, so game state and timers are preserved. The saved background is restored on reload, and choosing SVG-cards restores the green table.
+- Theme preference: saved locally as `texas-holdem-card-theme`; defaults to SVG-cards and remains usable when browser storage is blocked. Switching updates card graphics, background styling, and theme music while preserving game state and timers. The saved background is restored on reload, and choosing SVG-cards restores the green table.
 - AI hand strength: Chen Formula (pre-flop) + Monte Carlo win-rate simulation (post-flop)
-- Audio: Web Audio API (`OscillatorNode` + `GainNode`), no external audio files
+- Audio: sound effects use Web Audio API (`OscillatorNode` + `GainNode`). Geometric Rhapsody uses `audio/geometric-rhapsody.mp3` through a looping `AudioBufferSourceNode` on the same audio context, with a separate gain of 0.35. The MP3 is loaded and decoded on demand, then cached for future selections. Each entry starts a fresh source at offset zero; leaving stops it and invalidates pending playback, without suspending game sound effects. If browser autoplay policy blocks the saved theme on page load, music starts after the first click or key interaction.
 - Mobile / iOS: touch events handled via standard DOM; virtual layout scales automatically
 
 ---
@@ -76,6 +77,7 @@ Straight Flush · Four of a Kind · Full House · Flush · Straight · Three of 
 
 - Card graphics: [SVG-cards](https://github.com/htdebeer/SVG-cards) by Huub de Beer, originally created by David Bellot — licensed under [LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
 - Geometric Rhapsody: custom deck artwork supplied for this project.
+- Geometric Rhapsody BGM: user-supplied `Geometric_Rhapsody_BGM_30s_96BPM.mp3`, copied unchanged. The uploaded file is approximately 53 seconds long; the complete track loops.
 - Blood Moon Castle: custom deck artwork supplied for this project.
 - Geometric Rhapsody and Blood Moon Castle backgrounds: generated for this project with ChatGPT's built-in image-generation tool.
 - Fonts: [Noticia Text](https://fonts.google.com/specimen/Noticia+Text) via Google Fonts
