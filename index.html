@@ -131,7 +131,7 @@ function loadThemeMusic(ctx,url){
   return themeMusicBuffers[url];
 }
 function playThemeMusic(){
-  var url=CARD_THEMES[activeCardTheme].music;
+  var theme=CARD_THEMES[activeCardTheme],url=theme.music;
   if(!url)return;
   var version=themeMusicVersion;
   try{
@@ -144,6 +144,8 @@ function playThemeMusic(){
       var source=ctx.createBufferSource(),gain=ctx.createGain();
       source.buffer=results[1];
       source.loop=true;
+      source.loopStart=0;
+      source.loopEnd=theme.musicLoopEnd||0;
       gain.gain.value=0.35;
       source.connect(gain);
       gain.connect(ctx.destination);
@@ -180,9 +182,9 @@ function estimateWinProb(holeCards,community,numOpponents,iterations){iterations
 
 // Card themes share the same suit/rank filenames. Preserve each deck's aspect ratio.
 var CARD_THEMES={
-  "svg-cards":{label:"SVG-cards",directory:"cards/",extension:"svg",width:169.075,height:244.640,music:"audio/svg-cards.mp3"},
-  "geometric-rhapsody":{label:"Geometric Rhapsody",directory:"cards/geometric-rhapsody/",extension:"webp",width:630,height:880,background:"backgrounds/geometric-rhapsody.webp",surround:"#171e29",music:"audio/geometric-rhapsody.mp3"},
-  "blood-moon-castle":{label:"Blood Moon Castle",directory:"cards/blood-moon-castle/",extension:"webp",width:630,height:880,background:"backgrounds/blood-moon-castle.webp",surround:"#0c111b",music:"audio/blood-moon-castle.mp3"}
+  "svg-cards":{label:"SVG-cards",directory:"cards/",extension:"svg",width:169.075,height:244.640,music:"audio/svg-cards.mp3",musicLoopEnd:80},
+  "geometric-rhapsody":{label:"Geometric Rhapsody",directory:"cards/geometric-rhapsody/",extension:"webp",width:630,height:880,background:"backgrounds/geometric-rhapsody.webp",surround:"#171e29",music:"audio/geometric-rhapsody.mp3",musicLoopEnd:50},
+  "blood-moon-castle":{label:"Blood Moon Castle",directory:"cards/blood-moon-castle/",extension:"webp",width:630,height:880,background:"backgrounds/blood-moon-castle.webp",surround:"#0c111b",music:"audio/blood-moon-castle.mp3",musicLoopEnd:91}
 };
 var CARD_THEME_KEY="texas-holdem-card-theme";
 var activeCardTheme="svg-cards";

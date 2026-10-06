@@ -80,10 +80,10 @@ Run `node --test tests/theme-music.test.cjs` (Node.js 18+) for the theme-music s
 ## Credits
 
 - Card graphics: [SVG-cards](https://github.com/htdebeer/SVG-cards) by Huub de Beer, originally created by David Bellot — licensed under [LGPL-2.1](https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html)
-- SVG-cards BGM: user-supplied `SVG_Cards_Lounge_Jazz_40s_96BPM.mp3`, copied unchanged. Despite the filename, the uploaded file is approximately 83 seconds long; the complete track loops.
+- SVG-cards BGM: user-supplied `SVG_Cards_Lounge_Jazz_40s_96BPM.mp3`. Playback loops from 0 to 80 seconds, skipping the trailing pause in the approximately 83-second source file.
 - Geometric Rhapsody: custom deck artwork supplied for this project.
-- Geometric Rhapsody BGM: user-supplied `Geometric_Rhapsody_BGM_30s_96BPM.mp3`, copied unchanged. The uploaded file is approximately 53 seconds long; the complete track loops.
+- Geometric Rhapsody BGM: user-supplied `Geometric_Rhapsody_BGM_30s_96BPM.mp3`. Playback loops from 0 to 50 seconds, skipping the trailing pause in the approximately 53-second source file.
 - Blood Moon Castle: custom deck artwork supplied for this project.
-- Blood Moon Castle BGM: user-supplied `blood-moon-waltz.custom_score.mp3`, copied unchanged. The uploaded file is approximately 94 seconds long; the complete track loops.
+- Blood Moon Castle BGM: user-supplied `blood-moon-waltz.custom_score.mp3`. Playback loops from 0 to 91 seconds, skipping the trailing pause in the approximately 94-second source file.
 - Geometric Rhapsody and Blood Moon Castle backgrounds: generated for this project with ChatGPT's built-in image-generation tool.
 - Fonts: [Noticia Text](https://fonts.google.com/specimen/Noticia+Text) via Google Fonts
