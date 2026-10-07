@@ -9,10 +9,10 @@ A browser-based Fixed-Limit Texas Hold'em poker game. No installation, no build 
 - **6-player table** — You vs. 5 AI opponents, each with a distinct personality
 - **Fixed-Limit betting** — Small bet / big bet structure with a 4-raise cap per round
 - **Realistic card graphics** — Rendered via the [SVG-cards](https://github.com/htdebeer/SVG-cards) library
-- **Selectable card designs** — Choose SVG-cards, Geometric Rhapsody, or Blood Moon Castle from the lower-left menu, opposite the deal/action controls. Fronts, backs, and the background change together without restarting the hand; the browser remembers your choice.
-- **Themed backgrounds** — SVG-cards keeps the oval felt table. Geometric Rhapsody uses a textured abstract geometric painting, and Blood Moon Castle uses a photorealistic Gothic castle under a blood moon. Each custom background fills the 1200×700 canvas, which scales to the screen.
+- **Selectable card designs** — Choose SVG-cards, Geometric Rhapsody, Blood Moon Castle, or Star Voyage (星河纪行) from the lower-left menu, opposite the deal/action controls. Fronts, backs, and the background change together without restarting the hand; the browser remembers your choice.
+- **Themed backgrounds** — SVG-cards keeps the oval felt table. Geometric Rhapsody uses a textured abstract geometric painting, Blood Moon Castle uses a photorealistic Gothic castle under a blood moon, and Star Voyage uses a navy-and-gold celestial sailing chart. Each custom background fills the 1200×700 canvas, which scales to the screen.
 - **Sound effects** — Web Audio API tones for deal, check, call, raise, fold, all-in, and win
-- **Theme music** — SVG-cards, Geometric Rhapsody, and Blood Moon Castle each play their supplied MP3 from the beginning every time you select that theme, looping until you leave it. Switching themes stops the previous track before starting the next.
+- **Theme music** — All four themes play their supplied MP3 from the beginning every time you select that theme, looping until you leave it. Switching themes stops the previous track before starting the next.
 - **Auto-advance** — Next hand starts automatically after a 10-second countdown
 
 ---
@@ -64,11 +64,12 @@ Straight Flush · Four of a Kind · Full House · Flush · Straight · Three of 
 - Canvas: fixed 1200×700 px, CSS-scaled to viewport via `transform: scale()`
 - Card rendering: SVG-cards faces use individual SVG files in `cards/`; its blue back references `svg-cards.svg`. Geometric Rhapsody uses 53 lossless WebP images in `cards/geometric-rhapsody/`. Every decoded pixel matches its source PNG; the original 630×880 dimensions and aspect ratio are preserved.
 - Blood Moon Castle: the latest supplied 630×880 artwork is stored as lossless WebP in `cards/blood-moon-castle/`. Every decoded pixel matches its source PNG; the original dimensions and aspect ratio are preserved.
+- Star Voyage: version 11 of the supplied `Star_Voyage_55_Cards_630x880.zip` (updated 2026-10-02) is stored as 55 lossless WebP images in `cards/star-voyage/`, including both Jokers. Every decoded pixel matches the source PNG; all cards retain their 630×880 dimensions. The game uses the 52 standard faces and back.
 - Card themes: configured in `CARD_THEMES` inside `index.html`; files follow the existing `spade_1`, `heart_jack`, etc. naming convention, with `back` for the reverse. Only the 52 standard faces and one back are used.
 - Theme backgrounds: 1200×700 WebP images in `backgrounds/`, configured with the optional `background` and `surround` properties in `CARD_THEMES`. The custom themes hide the felt-table decoration while preserving the table geometry; dark panels keep foreground text readable. See [background asset notes](backgrounds/README.md) for generation prompts.
 - Theme preference: saved locally as `texas-holdem-card-theme`; defaults to SVG-cards and remains usable when browser storage is blocked. Switching updates card graphics, background styling, and theme music while preserving game state and timers. The saved background is restored on reload, and choosing SVG-cards restores the green table.
 - AI hand strength: Chen Formula (pre-flop) + Monte Carlo win-rate simulation (post-flop)
-- Audio: sound effects use Web Audio API (`OscillatorNode` + `GainNode`). SVG-cards uses `audio/svg-cards.mp3`, Geometric Rhapsody uses `audio/geometric-rhapsody.mp3`, and Blood Moon Castle uses `audio/blood-moon-castle.mp3`, through one looping `AudioBufferSourceNode` on the same audio context, with a separate gain of 0.35. Each MP3 is loaded and decoded on demand, then cached separately for future selections. Each entry starts a fresh source at offset zero; leaving stops it and invalidates pending playback, without suspending game sound effects. If browser autoplay policy blocks the default or saved theme on page load, music starts after the first click or key interaction.
+- Audio: sound effects use Web Audio API (`OscillatorNode` + `GainNode`). SVG-cards uses `audio/svg-cards.mp3`, Geometric Rhapsody uses `audio/geometric-rhapsody.mp3`, Blood Moon Castle uses `audio/blood-moon-castle.mp3`, and Star Voyage uses `audio/star-voyage.mp3`, through one looping `AudioBufferSourceNode` on the same audio context, with a separate gain of 0.35. Each MP3 is loaded and decoded on demand, then cached separately for future selections. Each entry starts a fresh source at offset zero; leaving stops it and invalidates pending playback, without suspending game sound effects. If browser autoplay policy blocks the default or saved theme on page load, music starts after the first click or key interaction.
 - Mobile / iOS: touch events handled via standard DOM; virtual layout scales automatically
 
 ### Checks
@@ -85,5 +86,7 @@ Run `node --test tests/theme-music.test.cjs` (Node.js 18+) for the theme-music s
 - Geometric Rhapsody BGM: user-supplied `Geometric_Rhapsody_BGM_30s_96BPM.mp3`. Playback loops from 0 to 50 seconds, skipping the trailing pause in the approximately 53-second source file.
 - Blood Moon Castle: custom deck artwork supplied for this project.
 - Blood Moon Castle BGM: user-supplied `blood-moon-waltz.custom_score.mp3`. Playback loops from 0 to 91 seconds, skipping the trailing pause in the approximately 94-second source file.
+- Star Voyage: user-supplied custom deck artwork and 1200×700 background. The background is converted to WebP at quality 94 with its composition preserved.
+- Star Voyage BGM: user-uploaded `audio/star-voyage.mp3`. Playback loops from 0 to 60 seconds of the approximately 63-second source file.
 - Geometric Rhapsody and Blood Moon Castle backgrounds: generated for this project with ChatGPT's built-in image-generation tool.
 - Fonts: [Noticia Text](https://fonts.google.com/specimen/Noticia+Text) via Google Fonts
