@@ -2,10 +2,13 @@
 
 The Geometric Rhapsody and Blood Moon Castle images were generated with ChatGPT's built-in image-generation tool for this project. The generated originals were 1643×957 pixels; the website exports are resized to exactly **1200×700** with Lanczos resampling and encoded as WebP at quality 94. Star Voyage uses the background supplied on 2026-10-07, already 1200×700, converted to WebP at quality 94 without cropping or changing its composition. No interface elements are baked into the images.
 
+Cyber Epoch uses the background supplied on 2026-10-08. Its 1672×941 source is proportionally resized with Lanczos resampling and center-cropped slightly at the left and right edges to exactly **1200×700**, then encoded as WebP at quality 94.
+
 | Theme | Asset | Size |
 | --- | --- | --- |
 | Geometric Rhapsody | `geometric-rhapsody.webp` | 1200×700 |
 | Blood Moon Castle | `blood-moon-castle.webp` | 1200×700 |
+| Cyber Epoch | `cyber-epoch.webp` | 1200×700 |
 | Star Voyage | `star-voyage.webp` | 1200×700 |
 
 ## Generation prompts
