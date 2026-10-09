@@ -71,9 +71,9 @@ function setup({ deferred = false, suspended = false, failFirst = false } = {}) 
     decoded: () => decodeCount, release: () => pending.splice(0).forEach(resolve => resolve()) };
 }
 
-test('all five themes follow menu order and reference their supplied MP3s', () => {
+test('all six themes follow menu order and reference their supplied MP3s', () => {
   const { sandbox: s } = setup();
-  const order = ['svg-cards', 'geometric-rhapsody', 'blood-moon-castle', 'cyber-epoch', 'star-voyage'];
+  const order = ['svg-cards', 'geometric-rhapsody', 'blood-moon-castle', 'azure-holiday', 'cyber-epoch', 'star-voyage'];
   assert.deepEqual(Object.keys(s.CARD_THEMES), order);
   for (const theme of order) {
     assert.equal(s.CARD_THEMES[theme].music, `audio/${theme}.mp3`);
@@ -83,21 +83,21 @@ test('all five themes follow menu order and reference their supplied MP3s', () =
 
 test('each entry starts at zero, loops, and stops before the next theme starts', async () => {
   const h = setup(), s = h.sandbox;
-  for (const theme of ['svg-cards', 'geometric-rhapsody', 'blood-moon-castle', 'cyber-epoch', 'star-voyage', 'svg-cards', 'star-voyage', 'cyber-epoch']) {
+  for (const theme of ['svg-cards', 'geometric-rhapsody', 'blood-moon-castle', 'azure-holiday', 'cyber-epoch', 'star-voyage', 'svg-cards', 'star-voyage', 'cyber-epoch', 'azure-holiday']) {
     s.changeCardTheme(theme);
     await settle();
     const source = h.sources.at(-1);
     assert.equal(source.buffer.url, `audio/${theme}.mp3`);
     assert.equal(source.loop, true);
     assert.equal(source.loopStart, 0);
-    assert.equal(source.loopEnd, { 'svg-cards': 80, 'geometric-rhapsody': 50, 'blood-moon-castle': 91, 'cyber-epoch': 48, 'star-voyage': 60 }[theme]);
+    assert.equal(source.loopEnd, { 'svg-cards': 80, 'geometric-rhapsody': 50, 'blood-moon-castle': 91, 'azure-holiday': 77, 'cyber-epoch': 48, 'star-voyage': 60 }[theme]);
     assert.deepEqual(source.args, [0, 0]);
     assert.equal(h.gains.at(-1).gain.value, 0.35);
     assert.equal(h.sources.filter(source => !source.stopped).length, 1);
   }
-  assert.equal(h.requests.length, 5);
-  assert.equal(h.decoded(), 5);
-  assert.deepEqual(h.events.map(event => event[0]), ['start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start']);
+  assert.equal(h.requests.length, 6);
+  assert.equal(h.decoded(), 6);
+  assert.deepEqual(h.events.map(event => event[0]), ['start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start']);
   s.stopThemeMusic();
   await settle();
   assert.equal(s.themeMusicSource, null);
@@ -117,7 +117,7 @@ test('leaving during loading prevents late playback', async () => {
   assert.equal(s.themeMusicSource.buffer.url, 'audio/blood-moon-castle.mp3');
 });
 
-test('rapid switches while all five tracks load start only the latest theme once', async () => {
+test('rapid switches while all six tracks load start only the latest theme once', async () => {
   const h = setup({ deferred: true }), s = h.sandbox;
   s.changeCardTheme('svg-cards');
   s.changeCardTheme('blood-moon-castle');
@@ -125,14 +125,15 @@ test('rapid switches while all five tracks load start only the latest theme once
   s.changeCardTheme('svg-cards');
   s.changeCardTheme('star-voyage');
   s.changeCardTheme('cyber-epoch');
+  s.changeCardTheme('azure-holiday');
   h.listeners.click();
   h.listeners.keydown();
   h.release();
   await settle();
-  assert.equal(h.requests.length, 5);
+  assert.equal(h.requests.length, 6);
   assert.equal(h.sources.length, 1);
-  assert.equal(h.sources[0].buffer.url, 'audio/cyber-epoch.mp3');
-  assert.equal(h.sources[0].loopEnd, 48);
+  assert.equal(h.sources[0].buffer.url, 'audio/azure-holiday.mp3');
+  assert.equal(h.sources[0].loopEnd, 77);
 });
 
 test('an old suspended resume cannot start the previous theme after switching', async () => {
@@ -185,7 +186,7 @@ test('switching themes does not render or reset game state or countdown', async 
   s.render = () => assert.fail('theme switch must not re-render the game');
   s.clearInterval = () => assert.fail('theme switch must not clear the countdown');
   s.setInterval = () => assert.fail('theme switch must not restart the countdown');
-  for (const theme of ['blood-moon-castle', 'geometric-rhapsody', 'cyber-epoch', 'star-voyage', 'svg-cards']) s.changeCardTheme(theme);
+  for (const theme of ['blood-moon-castle', 'geometric-rhapsody', 'azure-holiday', 'cyber-epoch', 'star-voyage', 'svg-cards']) s.changeCardTheme(theme);
   await settle();
   assert.equal(s.G, game);
   assert.equal(s.G.pot, 200);
