@@ -4,6 +4,8 @@ The Geometric Rhapsody and Blood Moon Castle images were generated with ChatGPT'
 
 Jinxiu Huazhang uses the Chinese palace-garden background supplied on 2026-10-10. Its source is already **1200×700**, so it is converted to WebP at quality 94 without cropping or resizing.
 
+Dead Zone uses the abandoned-city and quarantine-checkpoint background supplied on 2026-10-10. Its source is already **1200×700**, so it is converted to WebP at quality 94 without cropping or resizing.
+
 Azure Holiday uses the tropical-beach background supplied on 2026-10-09. Its 1643×957 source is proportionally resized with Lanczos resampling and very slightly center-cropped at the left and right edges to exactly **1200×700**, then encoded as WebP at quality 94.
 
 Cyber Epoch uses the background supplied on 2026-10-08. Its 1672×941 source is proportionally resized with Lanczos resampling and center-cropped slightly at the left and right edges to exactly **1200×700**, then encoded as WebP at quality 94.
@@ -12,6 +14,7 @@ Cyber Epoch uses the background supplied on 2026-10-08. Its 1672×941 source is 
 | --- | --- | --- |
 | Geometric Rhapsody | `geometric-rhapsody.webp` | 1200×700 |
 | Jinxiu Huazhang | `jinxiu-huazhang.webp` | 1200×700 |
+| Dead Zone | `dead-zone.webp` | 1200×700 |
 | Blood Moon Castle | `blood-moon-castle.webp` | 1200×700 |
 | Azure Holiday | `azure-holiday.webp` | 1200×700 |
 | Cyber Epoch | `cyber-epoch.webp` | 1200×700 |

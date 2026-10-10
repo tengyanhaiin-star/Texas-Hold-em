@@ -71,9 +71,9 @@ function setup({ deferred = false, suspended = false, failFirst = false } = {}) 
     decoded: () => decodeCount, release: () => pending.splice(0).forEach(resolve => resolve()) };
 }
 
-test('all seven themes follow menu order and reference their supplied MP3s', () => {
+test('all eight themes follow menu order and reference their supplied MP3s', () => {
   const { sandbox: s } = setup();
-  const order = ['svg-cards', 'geometric-rhapsody', 'jinxiu-huazhang', 'blood-moon-castle', 'azure-holiday', 'cyber-epoch', 'star-voyage'];
+  const order = ['svg-cards', 'geometric-rhapsody', 'jinxiu-huazhang', 'dead-zone', 'blood-moon-castle', 'azure-holiday', 'cyber-epoch', 'star-voyage'];
   assert.deepEqual(Object.keys(s.CARD_THEMES), order);
   for (const theme of order) {
     assert.equal(s.CARD_THEMES[theme].music, `audio/${theme}.mp3`);
@@ -83,21 +83,21 @@ test('all seven themes follow menu order and reference their supplied MP3s', () 
 
 test('each entry starts at zero, loops, and stops before the next theme starts', async () => {
   const h = setup(), s = h.sandbox;
-  for (const theme of ['svg-cards', 'geometric-rhapsody', 'jinxiu-huazhang', 'blood-moon-castle', 'azure-holiday', 'cyber-epoch', 'star-voyage', 'svg-cards', 'star-voyage', 'cyber-epoch', 'azure-holiday', 'jinxiu-huazhang']) {
+  for (const theme of ['svg-cards', 'geometric-rhapsody', 'jinxiu-huazhang', 'dead-zone', 'blood-moon-castle', 'azure-holiday', 'cyber-epoch', 'star-voyage', 'svg-cards', 'star-voyage', 'cyber-epoch', 'azure-holiday', 'jinxiu-huazhang', 'dead-zone']) {
     s.changeCardTheme(theme);
     await settle();
     const source = h.sources.at(-1);
     assert.equal(source.buffer.url, `audio/${theme}.mp3`);
     assert.equal(source.loop, true);
     assert.equal(source.loopStart, 0);
-    assert.equal(source.loopEnd, { 'svg-cards': 80, 'geometric-rhapsody': 50, 'jinxiu-huazhang': 54, 'blood-moon-castle': 91, 'azure-holiday': 77, 'cyber-epoch': 48, 'star-voyage': 60 }[theme]);
+    assert.equal(source.loopEnd, { 'svg-cards': 80, 'geometric-rhapsody': 50, 'jinxiu-huazhang': 54, 'dead-zone': 60, 'blood-moon-castle': 91, 'azure-holiday': 76.8, 'cyber-epoch': 47.2, 'star-voyage': 60 }[theme]);
     assert.deepEqual(source.args, [0, 0]);
     assert.equal(h.gains.at(-1).gain.value, 0.35);
     assert.equal(h.sources.filter(source => !source.stopped).length, 1);
   }
-  assert.equal(h.requests.length, 7);
-  assert.equal(h.decoded(), 7);
-  assert.deepEqual(h.events.map(event => event[0]), ['start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start']);
+  assert.equal(h.requests.length, 8);
+  assert.equal(h.decoded(), 8);
+  assert.deepEqual(h.events.map(event => event[0]), ['start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start', 'stop', 'start']);
   s.stopThemeMusic();
   await settle();
   assert.equal(s.themeMusicSource, null);
@@ -117,7 +117,7 @@ test('leaving during loading prevents late playback', async () => {
   assert.equal(s.themeMusicSource.buffer.url, 'audio/blood-moon-castle.mp3');
 });
 
-test('rapid switches while all seven tracks load start only the latest theme once', async () => {
+test('rapid switches while all eight tracks load start only the latest theme once', async () => {
   const h = setup({ deferred: true }), s = h.sandbox;
   s.changeCardTheme('svg-cards');
   s.changeCardTheme('blood-moon-castle');
@@ -127,14 +127,15 @@ test('rapid switches while all seven tracks load start only the latest theme onc
   s.changeCardTheme('cyber-epoch');
   s.changeCardTheme('azure-holiday');
   s.changeCardTheme('jinxiu-huazhang');
+  s.changeCardTheme('dead-zone');
   h.listeners.click();
   h.listeners.keydown();
   h.release();
   await settle();
-  assert.equal(h.requests.length, 7);
+  assert.equal(h.requests.length, 8);
   assert.equal(h.sources.length, 1);
-  assert.equal(h.sources[0].buffer.url, 'audio/jinxiu-huazhang.mp3');
-  assert.equal(h.sources[0].loopEnd, 54);
+  assert.equal(h.sources[0].buffer.url, 'audio/dead-zone.mp3');
+  assert.equal(h.sources[0].loopEnd, 60);
 });
 
 test('an old suspended resume cannot start the previous theme after switching', async () => {
@@ -187,7 +188,7 @@ test('switching themes does not render or reset game state or countdown', async 
   s.render = () => assert.fail('theme switch must not re-render the game');
   s.clearInterval = () => assert.fail('theme switch must not clear the countdown');
   s.setInterval = () => assert.fail('theme switch must not restart the countdown');
-  for (const theme of ['blood-moon-castle', 'geometric-rhapsody', 'jinxiu-huazhang', 'azure-holiday', 'cyber-epoch', 'star-voyage', 'svg-cards']) s.changeCardTheme(theme);
+  for (const theme of ['blood-moon-castle', 'geometric-rhapsody', 'jinxiu-huazhang', 'dead-zone', 'azure-holiday', 'cyber-epoch', 'star-voyage', 'svg-cards']) s.changeCardTheme(theme);
   await settle();
   assert.equal(s.G, game);
   assert.equal(s.G.pot, 200);
